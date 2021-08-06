@@ -1,5 +1,5 @@
 app-id: org.scilab.Scilab
-runtime: org.freedesktop.Platform
+runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
 runtime-version: '20.08'
 command: scilab
@@ -14,7 +14,6 @@ finish-args:
   - --share=network
   - --filesystem=home
 cleanup:
-  - /include
   - "*.la"
   - "*.a"
 
@@ -47,11 +46,13 @@ modules:
     ensure-writable:
       - /lib
       - /share
+      - /include
     build-commands:
       - chmod +x bin/{scilab,xcos,scilab-bin,scinotes}
       - cp -r {bin,thirdparty} ${FLATPAK_DEST}
       - cp -r lib/* ${FLATPAK_DEST}/lib
       - cp -r share/* ${FLATPAK_DEST}/share
+      - cp -r include/* ${FLATPAK_DEST}/include
       - cp -rn COPYING ACKNOWLEDGEMENTS CHANGES.md README.md ${FLATPAK_DEST}/share/scilab
       - rm -r /app/share/icons/hicolor/{16x16,24x24,32x32,48x48}/
       - mv /app/share/icons/hicolor/256x256/apps/scinotes.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.scinotes.png
