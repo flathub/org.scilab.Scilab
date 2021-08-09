@@ -3,8 +3,6 @@ runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
 runtime-version: '20.08'
 command: scilab
-rename-desktop-file: scilab.desktop
-rename-icon: scilab
 rename-appdata-file: scilab.appdata.xml
 finish-args:
   - --socket=x11
@@ -55,14 +53,17 @@ modules:
       - rm -r /app/share/icons/hicolor/{16x16,24x24,32x32,48x48}/
       - mv /app/share/icons/hicolor/256x256/apps/scinotes.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.scinotes.png
       - mv /app/share/icons/hicolor/256x256/apps/xcos.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.xcos.png
+      - mv /app/share/icons/hicolor/256x256/apps/scilab.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
       - mv /app/share/applications/scilab-adv-cli.desktop /app/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
       - mv /app/share/applications/scilab-cli.desktop /app/share/applications/${FLATPAK_ID}.scilab-cli.desktop
       - mv /app/share/applications/scinotes.desktop /app/share/applications/${FLATPAK_ID}.scinotes.desktop
       - mv /app/share/applications/xcos.desktop /app/share/applications/${FLATPAK_ID}.xcos.desktop
+      - mv /app/share/applications/scilab.desktop /app/share/applications/${FLATPAK_ID}.desktop
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scilab-cli.desktop
       - desktop-file-edit --set-icon=${FLATPAK_ID}.scinotes ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scinotes.desktop
       - desktop-file-edit --set-icon=${FLATPAK_ID}.xcos ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.xcos.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
         url: https://www.scilab.org/download/6.1.1/scilab-6.1.1.bin.linux-x86_64.tar.gz
