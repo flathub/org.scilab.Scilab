@@ -24,6 +24,7 @@ modules:
       - --without-tests
       - --with-shared
       - --with-termlib=tinfo
+      - --with-abi-version=5
     make-install-args:
       - install.libs
     cleanup:
