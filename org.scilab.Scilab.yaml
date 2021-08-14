@@ -18,19 +18,21 @@ cleanup:
 
 modules:
   - name: ncurses
-    no-autogen: true
     config-opts:
-      - --disable-static
-      - --without-tests
       - --with-shared
-      - --with-termlib=tinfo
+      - --with-normal
+      - --without-debug
+      - --without-ada
+      - --enable-widec
+      - --disable-pc-files
+      - --with-cxx-binding
+      - --with-cxx-shared
+      - --with-versioned-syms
       - --with-abi-version=5
-    make-install-args:
-      - install.libs
-    cleanup:
-      - /bin
-      - /include
-      - /share/man
+      - --with-termlib=tinfo
+    post-install:
+      - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.5 /app/lib/lib${lib}.so.5; done
+      - ln -s libncurses.so.5 /app/lib/libtic.so.5
     sources:
       - type: archive
         url: https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
