@@ -23,6 +23,7 @@ modules:
       - --disable-static
       - --without-tests
       - --with-shared
+      - --with-termlib=tinfo
     make-install-args:
       - install.libs
     cleanup:
