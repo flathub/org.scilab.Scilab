@@ -23,13 +23,12 @@ modules:
       - --disable-static
       - --without-tests
       - --with-shared
-      - --with-termlib=tinfo
-      - --with-abi-version=5
     make-install-args:
       - install.libs
     cleanup:
       - /bin
       - /include
+      - /share/man
     sources:
       - type: archive
         url: https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
@@ -49,7 +48,7 @@ modules:
       - cp -r lib/* ${FLATPAK_DEST}/lib
       - cp -r share/* ${FLATPAK_DEST}/share
       - cp -r include/* ${FLATPAK_DEST}/include
-      - cp -r COPYING ACKNOWLEDGEMENTS CHANGES.md README.md ${FLATPAK_DEST}/share/scilab
+      - cp COPYING ACKNOWLEDGEMENTS CHANGES.md README.md ${FLATPAK_DEST}/share/scilab
       - rm -r /app/share/icons/hicolor/{16x16,24x24,32x32,48x48}/
       - mv /app/share/icons/hicolor/256x256/apps/scinotes.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.scinotes.png
       - mv /app/share/icons/hicolor/256x256/apps/xcos.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.xcos.png
