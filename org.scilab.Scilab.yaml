@@ -1,7 +1,7 @@
 app-id: org.scilab.Scilab
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
-runtime-version: '21.08'
+runtime-version: '22.08'
 command: scilab
 rename-appdata-file: scilab.appdata.xml
 finish-args:
