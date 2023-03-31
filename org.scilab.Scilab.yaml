@@ -5,6 +5,7 @@ runtime-version: '22.08'
 command: scilab
 rename-appdata-file: scilab.appdata.xml
 finish-args:
+  - --env=MESA_GL_VERSION_OVERRIDE=2.1
   - --socket=x11
   - --share=ipc
   - --device=dri
@@ -12,9 +13,9 @@ finish-args:
   - --share=network
   - --filesystem=home
 cleanup:
-  - /share/man
-  - "*.la"
-  - "*.a"
+  # - /share/man
+  # - "*.la"
+  # - "*.a"
 
 modules:
   - name: ncurses
@@ -69,12 +70,12 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/6.1.1/scilab-6.1.1.bin.linux-x86_64.tar.gz
-        sha256: 3ee1a7cf661d021ae26afc27b9fe50cb2d1c9c27911e5582e9d4337ebedb2c79
+        url: https://www.scilab.org/download/2023.0.0/scilab-2023.0.0.bin.x86_64-pc-linux-gnu.tar.xz
+        sha256: 1278955d3bfc4b5be9290ec17f40b9e79789dee09be6893ba83f382e89015a66
       - type: patch
         path: fix-appdata.patch
         x-checker-data:
           type: anitya
           project-id: 6367
           stable-only: true
-          url-template: https://www.scilab.org/download/$version/scilab-$version.bin.linux-x86_64.tar.gz
+          url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-pc-linux-gnu.tar.xz
