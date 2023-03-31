@@ -5,6 +5,7 @@ runtime-version: '22.08'
 command: scilab
 rename-appdata-file: scilab.appdata.xml
 finish-args:
+  - --env=MESA_GL_VERSION_OVERRIDE=2.1
   - --socket=x11
   - --share=ipc
   - --device=dri
