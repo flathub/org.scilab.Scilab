@@ -72,10 +72,11 @@ modules:
       - type: archive
         url: https://www.scilab.org/download/2023.0.0/scilab-2023.0.0.bin.x86_64-pc-linux-gnu.tar.xz
         sha256: 1278955d3bfc4b5be9290ec17f40b9e79789dee09be6893ba83f382e89015a66
-      - type: patch
-        path: fix-appdata.patch
         x-checker-data:
           type: anitya
           project-id: 6367
           stable-only: true
           url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-pc-linux-gnu.tar.xz
+      - type: patch
+        path: fix-appdata.patch
+
