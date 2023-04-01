@@ -1,6 +1,6 @@
 diff -ruN a/share/appdata/scilab.appdata.xml b/share/appdata/scilab.appdata.xml
 --- a/share/appdata/scilab.appdata.xml	2023-03-10 17:20:17.000000000 +0100
-+++ b/share/appdata/scilab.appdata.xml	2023-03-31 23:42:47.510085254 +0200
++++ b/share/appdata/scilab.appdata.xml	2023-04-01 16:28:55.277845926 +0200
 @@ -1,7 +1,7 @@
  <?xml version="1.0" encoding="UTF-8"?>
  <!-- Copyright 2013 Clement DAVID <clement.david@scilab-enterprises.com> -->
@@ -10,8 +10,27 @@ diff -ruN a/share/appdata/scilab.appdata.xml b/share/appdata/scilab.appdata.xml
      <name>Scilab</name>
      <metadata_license>CC0-1.0</metadata_license>
      <project_license>CECILL-2.1 or GPL-2.0+</project_license>
-@@ -40,6 +40,11 @@
-         <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-scinotes.png</image>
+@@ -25,21 +25,26 @@
+     <screenshots>
+       <screenshot type="default">
+         <caption>Scilab main window</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-desktop.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-desktop.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab plot</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-plot.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-plot.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab Xcos</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-xcos.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-xcos.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab text editor</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-scinotes.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-scinotes.png</image>
        </screenshot>
      </screenshots>
 +    <content_rating type="oars-1.1"/>
