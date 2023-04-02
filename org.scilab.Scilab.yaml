@@ -13,9 +13,9 @@ finish-args:
   - --share=network
   - --filesystem=home
 cleanup:
-  # - /share/man
-  # - "*.la"
-  # - "*.a"
+  - /share/man
+  - "*.la"
+  - "*.a"
 
 modules:
   - name: ncurses
@@ -29,15 +29,15 @@ modules:
       - --with-cxx-binding
       - --with-cxx-shared
       - --with-versioned-syms
-      - --with-abi-version=5
+      - --with-abi-version=6
       - --with-termlib=tinfo
-    post-install:
-      - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.5 /app/lib/lib${lib}.so.5; done
-      - ln -s libncurses.so.5 /app/lib/libtic.so.5
+    # post-install:
+    #   - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.6 /app/lib/lib${lib}.so.6; done
+    #   - ln -s libncurses.so.5 /app/lib/libtic.so.6
     sources:
       - type: archive
-        url: https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz
-        sha256: 97fc51ac2b085d4cde31ef4d2c3122c21abc217e9090a43a30fc5ec21684e059
+        url: https://ftp.gnu.org/gnu/ncurses/ncurses-6.4.tar.gz
+        sha256: 6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159
 
     # Use Scilab binary
     # Delete smaller icons so rename them is easier.
@@ -48,6 +48,7 @@ modules:
       - /share
       - /include
     build-commands:
+      # - mkdir /app/libf
       - chmod +x bin/{scilab,xcos,scilab-bin,scinotes}
       - cp -r {bin,thirdparty} ${FLATPAK_DEST}
       - cp -r lib/* ${FLATPAK_DEST}/lib
