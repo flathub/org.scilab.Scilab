@@ -13,8 +13,8 @@ finish-args:
   - --filesystem=home
 cleanup:
   - /share/man
-  - "*.la"
-  - "*.a"
+  - '*.la'
+  - '*.a'
 
 modules:
   - name: ncurses
@@ -31,7 +31,8 @@ modules:
       - --with-abi-version=5
       - --with-termlib=tinfo
     post-install:
-      - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.5 /app/lib/lib${lib}.so.5; done
+      - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.5 /app/lib/lib${lib}.so.5;
+        done
       - ln -s libncurses.so.5 /app/lib/libtic.so.5
     sources:
       - type: archive
@@ -69,8 +70,8 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/6.1.1/scilab-6.1.1.bin.linux-x86_64.tar.gz
-        sha256: 3ee1a7cf661d021ae26afc27b9fe50cb2d1c9c27911e5582e9d4337ebedb2c79
+        url: https://www.scilab.org/download/2023.0.0/scilab-2023.0.0.bin.x86_64-pc-linux-gnu.tar.xz
+        sha256: 1278955d3bfc4b5be9290ec17f40b9e79789dee09be6893ba83f382e89015a66
         x-checker-data:
           type: anitya
           project-id: 6367
