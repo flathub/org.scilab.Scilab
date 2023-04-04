@@ -77,4 +77,4 @@ modules:
           stable-only: true
           url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-pc-linux-gnu.tar.xz
       - type: patch
-        path: fix-appdata.patch
+        path: Improve-AppStream-metadata.patch

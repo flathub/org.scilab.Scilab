@@ -1,0 +1,78 @@
+From 4a96d9b4023d49ab77b2b529ee6d1d8ebc7e451a Mon Sep 17 00:00:00 2001
+From: Will Thompson <will@willthompson.co.uk>
+Date: Tue, 4 Apr 2023 13:51:49 +0000
+Subject: [PATCH] Linux desktop: Improve AppStream metadata
+
+Improve the AppStream metadata used by Flathub and software centres such as GNOME Software:
+
+- Fix screenshot URLs to reference PNGs, not GitLab web pages that embed the PNGs
+- Add release information (required by Flathub)
+- Add content rating metadata (required by Flathub)
+- Add translation information, so that GNOME Software can indicate whether the application is translated into the user's language
+- Add additional URLs, to help users find documentation, the issue tracker, and encourage the contribution of translations and code changes
+
+The release information should be updated whenever a new release is made, adding the new release at the top of the list.
+
+Co-authored-by: Will Thompson <wjt@endlessos.org>
+See https://gitlab.com/scilab/scilab/-/merge_requests/304
+
+diff --git a/share/appdata/scilab.appdata.xml b/share/appdata/scilab.appdata.xml
+index 508b07bd927..e271e840948 100644
+--- a/share/appdata/scilab.appdata.xml
++++ b/share/appdata/scilab.appdata.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!-- Copyright 2013 Clement DAVID <clement.david@scilab-enterprises.com> -->
+ <component type="desktop-application">
+-    <id>org.scilab.www</id>
++    <id>org.scilab.Scilab</id>
+     <name>Scilab</name>
+     <metadata_license>CC0-1.0</metadata_license>
+     <project_license>CECILL-2.1 or GPL-2.0+</project_license>
+@@ -25,21 +25,39 @@
+     <screenshots>
+       <screenshot type="default">
+         <caption>Scilab main window</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-desktop.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-desktop.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab plot</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-plot.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-plot.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab Xcos</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-xcos.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-xcos.png</image>
+       </screenshot>
+       <screenshot>
+         <caption>Scilab text editor</caption>
+-        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/blob/6.1/scilab/desktop/images/scilab-scinotes.png</image>
++        <image width="1200" height="675">https://gitlab.com/scilab/scilab/-/raw/6.1/scilab/desktop/images/scilab-scinotes.png</image>
+       </screenshot>
+     </screenshots>
++    <releases>
++      <release version="2023.0.0" date="2023-03-10">
++        <url>https://help.scilab.org/docs/2023.0.0/en_US/CHANGES.html</url>
++      </release>
++      <release version="6.1.1" date="2021-07-16">
++        <url>https://help.scilab.org/docs/6.1.1/en_US/CHANGES.html</url>
++      </release>
++    </releases>
+     <url type="homepage">https://www.scilab.org</url>
++    <url type="bugtracker">https://gitlab.com/scilab/scilab/-/issues</url>
++    <url type="help">https://help.scilab.org/</url>
++    <url type="translate">https://scilab.gitlab.io/legacy_wiki/Localization</url>
++    <url type="vcs-browser">https://gitlab.com/scilab/scilab</url>
++    <url type="contribute">https://www.scilab.org/about/scilab-open-source-software</url>
++    <translation type="gettext">scilab</translation>
++    <content_rating type="oars-1.1"/>
++    <provides>
++      <id>org.scilab.www</id>
++    </provides>
+     <update_contact>dev@lists.scilab.org</update_contact>
+ </component>
+-- 
+2.30.2
+
