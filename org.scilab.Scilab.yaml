@@ -48,10 +48,6 @@ modules:
     # Delete smaller icons so rename them is easier.
   - name: Scilab
     buildsystem: simple
-    ensure-writable:
-      - /lib
-      - /share
-      - /include
     build-commands:
       - chmod +x bin/{scilab,xcos,scilab-bin,scinotes}
       - cp -r {bin,thirdparty} ${FLATPAK_DEST}
