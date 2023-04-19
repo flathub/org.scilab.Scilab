@@ -4,6 +4,8 @@ sdk: org.freedesktop.Sdk
 runtime-version: '22.08'
 command: scilab
 rename-appdata-file: scilab.appdata.xml
+build-options:
+  no-debuginfo: true
 finish-args:
   - --socket=x11
   - --share=ipc
