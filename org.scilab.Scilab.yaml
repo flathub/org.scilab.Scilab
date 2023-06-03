@@ -74,12 +74,10 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/2023.0.0/scilab-2023.0.0.bin.x86_64-pc-linux-gnu.tar.xz
-        sha256: 1278955d3bfc4b5be9290ec17f40b9e79789dee09be6893ba83f382e89015a66
+        url: https://www.scilab.org/download/2023.1.0/scilab-2023.1.0.bin.x86_64-linux-gnu.tar.xz
+        sha256: 8abcd28bc560f47a48479c37d3aaf9a976156611f1ca238cda1ac4ad866fa8c5
         x-checker-data:
           type: anitya
           project-id: 6367
           stable-only: true
-          url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-pc-linux-gnu.tar.xz
-      - type: patch
-        path: Improve-AppStream-metadata.patch
+          url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-linux-gnu.tar.xz
