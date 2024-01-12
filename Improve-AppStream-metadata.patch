@@ -29,7 +29,7 @@ index 508b07bd927..e271e840948 100644
      <name>Scilab</name>
      <metadata_license>CC0-1.0</metadata_license>
      <project_license>CECILL-2.1 or GPL-2.0+</project_license>
-@@ -25,21 +25,39 @@
+@@ -25,21 +25,42 @@
      <screenshots>
        <screenshot type="default">
          <caption>Scilab main window</caption>
@@ -53,6 +53,9 @@ index 508b07bd927..e271e840948 100644
        </screenshot>
      </screenshots>
 +    <releases>
++      <release version="2024.0.0" date="2023-10-23">
++        <url>https://help.scilab.org/docs/2024.0.0/en_US/CHANGES.html</url>
++      </release>
 +      <release version="2023.0.0" date="2023-03-10">
 +        <url>https://help.scilab.org/docs/2023.0.0/en_US/CHANGES.html</url>
 +      </release>
