@@ -81,3 +81,5 @@ modules:
           project-id: 6367
           stable-only: true
           url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-linux-gnu.tar.xz
+      - type: patch
+        path: Improve-AppStream-metadata.patch
