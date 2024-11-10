@@ -1,7 +1,7 @@
 app-id: org.scilab.Scilab
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
-runtime-version: '22.08'
+runtime-version: '24.08'
 command: scilab
 rename-appdata-file: scilab.appdata.xml
 build-options:
@@ -39,8 +39,8 @@ modules:
       - ln -s libncurses.so.5 /app/lib/libtic.so.5
     sources:
       - type: archive
-        url: https://invisible-island.net/archives/ncurses/current/ncurses-6.4-20231209.tgz
-        sha256: ad9f8b710ae8499941b6c23c1dfb6dc97fe42d4298691700347ef9daae6eea26
+        url: https://invisible-island.net/archives/ncurses/current/ncurses-6.5-20241109.tgz
+        sha256: f918b3c29b402ca280ddd112c0ca7cd04991496bf586edaf47ef062fe94668ca
         x-checker-data:
           type: anitya
           project-id: 2057
@@ -74,8 +74,8 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/2024.1.0/scilab-2024.1.0.bin.x86_64-linux-gnu.tar.xz
-        sha256: 0eeddf0ce260dd1dc6a38a044d11447f5f48faaf4400ab83db3ab7d706aa1751
+        url: https://www.scilab.org/download/2025.0.0/scilab-2025.0.0.bin.x86_64-linux-gnu.tar.xz
+        sha256: f74e47a63a4d5a7ba927bfdf9745e3ede3c3a5e3158b4d8e9c4c8879ac0d771c
         x-checker-data:
           type: anitya
           project-id: 6367

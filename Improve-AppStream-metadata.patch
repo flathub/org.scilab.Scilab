@@ -1,33 +1,13 @@
 diff -ruN a/share/appdata/scilab.appdata.xml b/share/appdata/scilab.appdata.xml
---- a/share/appdata/scilab.appdata.xml	2024-05-23 09:59:36.000000000 +0200
-+++ b/share/appdata/scilab.appdata.xml	2024-07-15 14:11:10.746570357 +0200
-@@ -2,10 +2,11 @@
- <!-- Copyright 2013 Clement DAVID <clement.david@scilab-enterprises.com> -->
- <component type="desktop-application">
-     <id>org.scilab.Scilab</id>
-+    <launchable type="desktop-id">org.scilab.Scilab.desktop</launchable>
-     <name>Scilab</name>
-     <metadata_license>CC0-1.0</metadata_license>
-     <project_license>CECILL-2.1 or GPL-2.0+</project_license>
--    <summary>Scientific software package for numerical computations</summary>
-+    <summary>Package for numerical computations</summary>
-     <description>
-         <p>Scilab is free and open source software for numerical computation providing a powerful computing environment for engineering and scientific applications. Scilab includes hundreds of mathematical functions. It has a high level programming language allowing access to advanced data structures, 2-D and 3-D graphical functions. A large number of functionalities is included in Scilab:
-         </p>
-@@ -41,6 +42,9 @@
+--- a/share/appdata/scilab.appdata.xml	2024-10-24 12:02:57.000000000 +0200
++++ b/share/appdata/scilab.appdata.xml	2024-11-10 15:03:56.559874067 +0100
+@@ -41,6 +41,9 @@
        </screenshot>
      </screenshots>
      <releases>
-+      <release version="2024.1.0" date="2024-05-23">
-+        <url>https://help.scilab.org/docs/2024.1.0/en_US/CHANGES.html</url>
++      <release version="2025.0.0" date="2024-10-24">
++        <url>https://help.scilab.org/docs/2025.0.0/en_US/index.html</url>
 +      </release>
-       <release version="2024.0.0" date="2023-10-24">
-         <url>https://help.scilab.org/docs/2024.0.0/en_US/CHANGES.html</url>
+       <release version="2024.1.0" date="2024-05-23">
+         <url>https://help.scilab.org/docs/2024.1.0/en_US/CHANGES.html</url>
        </release>
-@@ -65,5 +69,6 @@
-     <provides>
-       <id>org.scilab.www</id>
-     </provides>
-+    <developer_name>Scilab developers</developer_name>
-     <update_contact>dev@lists.scilab.org</update_contact>
- </component>
