@@ -1,7 +1,15 @@
 diff -ruN a/share/appdata/scilab.appdata.xml b/share/appdata/scilab.appdata.xml
 --- a/share/appdata/scilab.appdata.xml	2024-10-24 12:02:57.000000000 +0200
-+++ b/share/appdata/scilab.appdata.xml	2024-11-10 15:03:56.559874067 +0100
-@@ -41,6 +41,9 @@
++++ b/share/appdata/scilab.appdata.xml	2024-11-10 16:07:35.405268201 +0100
+@@ -2,6 +2,7 @@
+ <!-- Copyright 2013 Clement DAVID <clement.david@scilab-enterprises.com> -->
+ <component type="desktop-application">
+     <id>org.scilab.Scilab</id>
++    <launchable type="desktop-id">org.scilab.Scilab.desktop</launchable>
+     <name>Scilab</name>
+     <metadata_license>CC0-1.0</metadata_license>
+     <project_license>CECILL-2.1 or GPL-2.0+</project_license>
+@@ -41,6 +42,9 @@
        </screenshot>
      </screenshots>
      <releases>
