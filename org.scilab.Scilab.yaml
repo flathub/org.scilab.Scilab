@@ -39,8 +39,8 @@ modules:
       - ln -s libncurses.so.5 /app/lib/libtic.so.5
     sources:
       - type: archive
-        url: https://invisible-island.net/archives/ncurses/current/ncurses-6.5-20241109.tgz
-        sha256: f918b3c29b402ca280ddd112c0ca7cd04991496bf586edaf47ef062fe94668ca
+        url: https://invisible-island.net/archives/ncurses/current/ncurses-6.5-20250125.tgz
+        sha256: 3fd7907f58959a6566da4e3e789b164c568951c2ad41a93c5340c85c12f109a5
         x-checker-data:
           type: anitya
           project-id: 2057
