@@ -39,13 +39,13 @@ modules:
       - ln -s libncurses.so.5 /app/lib/libtic.so.5
     sources:
       - type: archive
-        url: https://invisible-island.net/archives/ncurses/current/ncurses-6.5-20250201.tgz
-        sha256: 8315040d6e1f9b8df8c4828f777fe24ada169a42d75bacd930b88cd597956483
+        url: https://invisible-island.net/archives/ncurses/ncurses-6.5.tar.gz
+        sha256: 136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6
         x-checker-data:
           type: anitya
           project-id: 2057
           stable-only: true
-          url-template: https://invisible-island.net/archives/ncurses/current/ncurses-$version.tgz
+          url-template: https://invisible-island.net/archives/ncurses/ncurses-$version.tar.gz
 
     # Use Scilab binary
     # Delete smaller icons so rename them is easier.
@@ -74,8 +74,8 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/2025.0.0/scilab-2025.0.0.bin.x86_64-linux-gnu.tar.xz
-        sha256: f74e47a63a4d5a7ba927bfdf9745e3ede3c3a5e3158b4d8e9c4c8879ac0d771c
+        url: https://www.scilab.org/download/2026.0.0/scilab-2026.0.0.bin.x86_64-linux-gnu.tar.xz
+        sha256: 800b5a8f5c1e4e1ced1618e245b7e6a9d420d1732ab94e8b5f913f05e1be8a57
         x-checker-data:
           type: anitya
           project-id: 6367
