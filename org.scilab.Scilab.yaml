@@ -74,8 +74,8 @@ modules:
       - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://www.scilab.org/download/2026.0.0/scilab-2026.0.0.bin.x86_64-linux-gnu.tar.xz
-        sha256: 800b5a8f5c1e4e1ced1618e245b7e6a9d420d1732ab94e8b5f913f05e1be8a57
+        url: https://www.scilab.org/download/2026.0.1/scilab-2026.0.1.bin.x86_64-linux-gnu.tar.xz
+        sha256: ca018aa360a9680ef0e49525d1581aa49135d9d3c17292f782f2c32316bc5f78
         x-checker-data:
           type: anitya
           project-id: 6367
