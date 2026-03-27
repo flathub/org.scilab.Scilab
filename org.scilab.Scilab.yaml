@@ -2,20 +2,29 @@ app-id: org.scilab.Scilab
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
 runtime-version: '24.08'
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk17
 command: scilab
-rename-appdata-file: scilab.appdata.xml
 build-options:
   no-debuginfo: true
+  env:
+    JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+    PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
 finish-args:
   - --env=MESA_GL_VERSION_OVERRIDE=2.1
+  - --env=JAVA_HOME=/app/lib/jvm
   - --socket=x11
   - --share=ipc
   - --device=dri
   - --socket=pulseaudio
   - --share=network
   - --filesystem=home
+rename-appdata-file: scilab.appdata.xml
 cleanup:
   - /share/man
+  - /share/gtk-doc
+  - /share/aclocal
+  - /lib/pkgconfig
   - '*.la'
   - '*.a'
 
@@ -37,6 +46,10 @@ modules:
       - for lib in ncurses ncurses++ form panel menu; do ln -s lib${lib}w.so.5 /app/lib/lib${lib}.so.5;
         done
       - ln -s libncurses.so.5 /app/lib/libtic.so.5
+      - for lib in ncurses ncurses++ form panel menu; do ln -sf lib${lib}w.so.5 /app/lib/lib${lib}.so;
+        done
+      - ln -sf libncurses.so.5 /app/lib/libcurses.so.5
+      - ln -sf libncurses.so /app/lib/libcurses.so
     sources:
       - type: archive
         url: https://invisible-island.net/archives/ncurses/ncurses-6.5.tar.gz
@@ -47,39 +60,580 @@ modules:
           stable-only: true
           url-template: https://invisible-island.net/archives/ncurses/ncurses-$version.tar.gz
 
-    # Use Scilab binary
-    # Delete smaller icons so rename them is easier.
-  - name: Scilab
-    buildsystem: simple
-    build-commands:
-      - chmod +x bin/{scilab,xcos,scilab-bin,scinotes}
-      - cp -r {bin,thirdparty} ${FLATPAK_DEST}
-      - cp -r lib/* ${FLATPAK_DEST}/lib
-      - cp -r share/* ${FLATPAK_DEST}/share
-      - cp -r include/* ${FLATPAK_DEST}/include
-      - cp COPYING ACKNOWLEDGEMENTS CHANGES.md README.md ${FLATPAK_DEST}/share/scilab
-      - rm -r /app/share/icons/hicolor/{16x16,24x24,32x32,48x48}/
-      - mv /app/share/icons/hicolor/256x256/apps/scinotes.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.scinotes.png
-      - mv /app/share/icons/hicolor/256x256/apps/xcos.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.xcos.png
-      - mv /app/share/icons/hicolor/256x256/apps/scilab.png /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
-      - mv /app/share/applications/scilab-adv-cli.desktop /app/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
-      - mv /app/share/applications/scilab-cli.desktop /app/share/applications/${FLATPAK_ID}.scilab-cli.desktop
-      - mv /app/share/applications/scinotes.desktop /app/share/applications/${FLATPAK_ID}.scinotes.desktop
-      - mv /app/share/applications/xcos.desktop /app/share/applications/${FLATPAK_ID}.xcos.desktop
-      - mv /app/share/applications/scilab.desktop /app/share/applications/${FLATPAK_ID}.desktop
-      - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
-      - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scilab-cli.desktop
-      - desktop-file-edit --set-icon=${FLATPAK_ID}.scinotes ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.scinotes.desktop
-      - desktop-file-edit --set-icon=${FLATPAK_ID}.xcos ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.xcos.desktop
-      - desktop-file-edit --set-icon=${FLATPAK_ID} ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+  - name: openblas
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_WITHOUT_CBLAS=OFF
+      - -DBUILD_WITHOUT_LAPACK=OFF
+      - -DNUM_THREADS=64
     sources:
       - type: archive
-        url: https://www.scilab.org/download/2026.0.1/scilab-2026.0.1.bin.x86_64-linux-gnu.tar.xz
-        sha256: ca018aa360a9680ef0e49525d1581aa49135d9d3c17292f782f2c32316bc5f78
-        x-checker-data:
-          type: anitya
-          project-id: 6367
-          stable-only: true
-          url-template: https://www.scilab.org/download/$version/scilab-$version.bin.x86_64-linux-gnu.tar.xz
+        url: https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.28/OpenBLAS-0.3.28.tar.gz
+        sha256: f1003466ad074e9b0c8d421a204121100b0751c96fc6fcf3d1456bd12f8a00a1
+
+  - name: arpack-ng
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBLA_VENDOR=OpenBLAS
+      - -DBUILD_SHARED_LIBS=ON
+      - -DEXAMPLES=OFF
+    sources:
+      - type: archive
+        url: https://github.com/opencollab/arpack-ng/archive/refs/tags/3.9.1.tar.gz
+        sha256: f6641deb07fa69165b7815de9008af3ea47eb39b2bb97521fbf74c97aba6e844
+
+  - name: pcre2
+    config-opts:
+      - --enable-shared
+      - --enable-pcre2-32
+      - --enable-pcre2-16
+      - --enable-jit
+    sources:
+      - type: archive
+        url: https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.43/pcre2-10.43.tar.bz2
+        sha256: e2a53984ff0b07dfdb5ae4486bbb9b21cca8e7df2434096cc9bf1b728c350bcb
+
+  - name: hdf5
+    config-opts:
+      - --enable-shared
+      - --disable-static
+      - --enable-hl
+      - --disable-fortran
+      - --disable-cxx
+      - --disable-tools
+      - --with-zlib
+    post-install:
+      # HDF5 autotools build doesn't install hdf5.pc; create one so matio.pc resolves
+      - |
+        mkdir -p /app/lib/pkgconfig
+        { echo 'prefix=/app'
+          echo 'exec_prefix=${prefix}'
+          echo 'libdir=${exec_prefix}/lib'
+          echo 'includedir=${prefix}/include'
+          echo ''
+          echo 'Name: HDF5'
+          echo 'Description: HDF5 library'
+          echo 'Version: 1.14.4'
+          echo 'Libs: -L${libdir} -lhdf5'
+          echo 'Cflags: -I${includedir}'
+        } > /app/lib/pkgconfig/hdf5.pc
+    sources:
+      - type: archive
+        url: https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.4.3/hdf5-1.14.4-3.tar.gz
+        sha256: 019ac451d9e1cf89c0482ba2a06f07a46166caf23f60fea5ef3c37724a318e03
+        strip-components: 2
+
+  - name: matio
+    config-opts:
+      - --enable-shared
+      - --with-hdf5=/app
+    sources:
+      - type: archive
+        url: https://github.com/tbeu/matio/releases/download/v1.5.28/matio-1.5.28.tar.gz
+        sha256: 9da698934a21569af058e6348564666f45029e6c2b0878ca0d8f9609bf77b8d8
+
+  - name: fftw
+    config-opts:
+      - --enable-shared
+      - --enable-threads
+      - --disable-fortran
+    sources:
+      - type: archive
+        url: https://www.fftw.org/fftw-3.3.10.tar.gz
+        sha256: 56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467
+
+  - name: libarchive
+    config-opts:
+      - --disable-bsdtar
+      - --disable-bsdcpio
+      - --disable-bsdcat
+    sources:
+      - type: archive
+        url: https://github.com/libarchive/libarchive/releases/download/v3.7.1/libarchive-3.7.1.tar.xz
+        sha256: b17403ce670ff18d8e06fea05a9ea9accf70678c88f1b9392a2e29b51127895f
+
+  - name: eigen
+    buildsystem: simple
+    build-commands:
+      - cp -r Eigen /app/include/
+      - cp -r unsupported /app/include/
+    sources:
+      - type: archive
+        url: https://gitlab.com/libeigen/eigen/-/archive/3.3.2/eigen-3.3.2.tar.bz2
+        sha256: a530aa818520bb4e9f36e099696ca1a087e6d8e564f7e50abb544f5ac91d519f
+        strip-components: 1
+
+  - name: rapidjson
+    buildsystem: simple
+    build-commands:
+      - cp -r include/rapidjson /app/include/
+    sources:
+      - type: archive
+        url: https://github.com/Tencent/rapidjson/archive/24b5e7a.tar.gz
+        sha256: 2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8
+        strip-components: 1
+
+  # Scilab links against libOpenXLSX.so; cmake shared-lib build not supported
+  # upstream, so we manually link the static archive into a shared library.
+  - name: openxlsx
+    buildsystem: simple
+    build-commands:
+      - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+          -DCMAKE_CXX_FLAGS="-include cstdint" -G Ninja
+      - cmake --build build --target OpenXLSX
+      - mkdir -p /app/include/OpenXLSX
+      - cp -r OpenXLSX/headers/. /app/include/OpenXLSX/
+      - g++ -shared -o /app/lib/libOpenXLSX.so
+          -Wl,--whole-archive build/output/libOpenXLSX.a
+          -Wl,--no-whole-archive
+    sources:
+      - type: archive
+        url: https://github.com/troldal/OpenXLSX/archive/refs/tags/v0.3.2.tar.gz
+        sha256: e379f29a8ba4c4c33a2ef0589cf2fbc956411514748b2b7b45aaeff393e52cb3
+
+  - name: suitesparse
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DSUITESPARSE_ENABLE_PROJECTS=suitesparse_config;amd;btf;colamd;klu
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_TESTING=OFF
+      - -DSUITESPARSE_USE_OPENMP=OFF
+    sources:
+      - type: archive
+        url: https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.8.3.tar.gz
+        sha256: ce39b28d4038a09c14f21e02c664401be73c0cb96a9198418d6a98a7db73a259
+
+  - name: tcl
+    subdir: unix
+    post-install:
+      - ln -sf tclsh8.6 /app/bin/tclsh
+    sources:
+      - type: archive
+        url: https://prdownloads.sourceforge.net/tcl/tcl8.6.15-src.tar.gz
+        sha256: 861e159753f2e2fbd6ec1484103715b0be56be3357522b858d3cbb5f893ffef1
+
+  - name: tk
+    subdir: unix
+    config-opts:
+      - --with-tcl=/app/lib
+      - --enable-shared
+    sources:
+      - type: archive
+        url: https://prdownloads.sourceforge.net/tcl/tk8.6.15-src.tar.gz
+        sha256: 550969f35379f952b3020f3ab7b9dd5bfd11c1ef7c9b7c6a75f5c49aca793fec
+
+  - name: ant
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/share/ant
+      - cp -r . /app/share/ant/
+      - ln -s /app/share/ant/bin/ant /app/bin/ant
+    sources:
+      - type: archive
+        url: https://archive.apache.org/dist/ant/binaries/apache-ant-1.10.5-bin.tar.gz
+        sha256: cd52c6f77a0b1de7174addc94e5a512d86978ac9173a30cd11f4ab26f6d8deba
+        strip-components: 1
+
+  - name: flexdock
+    buildsystem: simple
+    build-options:
+      env:
+        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+        ANT_HOME: /app/share/ant
+        PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
+    build-commands:
+      # Java 17 dropped support for source/target <7; patch 1.5 → 8
+      - sed -i 's/source="1\.5" target="1\.5"/source="8" target="8"/g' build.xml
+      - ant jar
+      - install -Dm644 build/flexdock-1.2.5.jar /app/share/java/flexdock-1.2.5.jar
+    sources:
+      - type: archive
+        url: https://gitlab.com/scilab/forge/flexdock/-/archive/1.2.5/flexdock-1.2.5.tar.gz
+        sha256: eb26c65b6ce347b52c02cb2bbce1ec595392baa64347ef9df8fde5acff5d8aaa
+        strip-components: 1
+
+  - name: jrosetta
+    buildsystem: simple
+    build-options:
+      env:
+        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+        PATH: /usr/lib/sdk/openjdk17/bin:/usr/bin:/bin
+    build-commands:
+      - mkdir -p build/api
+      - javac -source 8 -target 8 -d build/api
+          $(find modules/jrosetta-api/src/main/java -name "*.java")
+      - jar cf jrosetta-api-1.0.4.jar -C build/api .
+      - mkdir -p build/engine
+      - javac -source 8 -target 8 -cp build/api -d build/engine
+          $(find modules/jrosetta-engine/src/main/java -name "*.java")
+      - jar cf jrosetta-engine-1.0.4.jar -C build/engine .
+      - install -Dm644 jrosetta-api-1.0.4.jar /app/share/java/jrosetta-api-1.0.4.jar
+      - install -Dm644 jrosetta-engine-1.0.4.jar /app/share/java/jrosetta-engine-1.0.4.jar
+    sources:
+      - type: archive
+        url: http://deb.debian.org/debian/pool/main/libj/libjrosetta-java/libjrosetta-java_1.0.4.orig.tar.bz2
+        sha256: 57e214b3788520b0c9718e817a7277e732a90de25f78a7eb044595bb6b4b4fce
+        strip-components: 1
+
+  - name: Scilab
+    buildsystem: simple
+    build-options:
+      env:
+        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+        ANT_HOME: /app/share/ant
+        PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
+        LD_LIBRARY_PATH: /app/lib
+    build-commands:
+      - mkdir -p scilab/lib/thirdparty
+      - cp /app/share/java/flexdock-1.2.5.jar scilab/thirdparty/
+      - cp /app/share/java/jrosetta-api-1.0.4.jar scilab/thirdparty/
+      - cp /app/share/java/jrosetta-engine-1.0.4.jar scilab/thirdparty/
+      - unzip -j jogl-natives.jar 'natives/linux-amd64/*.so' -d scilab/lib/thirdparty/
+      - unzip -j gluegen-rt-natives.jar 'natives/linux-amd64/*.so' -d scilab/lib/thirdparty/
+      - mkdir -p jcef-native-extract
+      - unzip -j jcef-natives-linux-amd64.jar '*.tar.gz' -d jcef-native-extract/
+      - mkdir -p scilab/lib/thirdparty/jcef
+      - tar -xzf jcef-native-extract/*.tar.gz -C scilab/lib/thirdparty/jcef/
+      - mkdir -p /app/lib/jvm
+      - cp -a /usr/lib/sdk/openjdk17/jvm/openjdk-17/. /app/lib/jvm/
+      - |
+        cd scilab
+        LIBS="-ltinfo" ./configure \
+          --prefix=/app \
+          --disable-build-help \
+          --disable-build-localization \
+          --without-modelica \
+          --without-umfpack \
+          --with-eigen-include=/app/include \
+          --with-tcl-include=/app/include \
+          --with-tcl-library=/app/lib \
+          --with-tk-include=/app/include \
+          --with-tk-library=/app/lib
+      - make -C scilab -j$(nproc)
+      - make -C scilab install
+      - mkdir -p /app/share/scilab/thirdparty
+      - cp -r scilab/thirdparty/. /app/share/scilab/thirdparty/
+      - mkdir -p /app/lib/thirdparty
+      - cp -r scilab/lib/thirdparty/. /app/lib/thirdparty/
+      - mkdir -p /app/share/scilab/modules/tclsci
+      - cp -r scilab/modules/tclsci/tcl /app/share/scilab/modules/tclsci/
+      - cp -r bwidget-src /app/share/scilab/modules/tclsci/tcl/BWidget
+      # Fix classpath.xml so JARs are found at runtime
+      - |
+        BUILD_TP=$(realpath scilab/thirdparty)
+        sed -i "s|${BUILD_TP}/|\$SCILAB/thirdparty/|g" \
+          /app/share/scilab/etc/classpath.xml
+      - rm -rf /app/share/icons/hicolor/{16x16,24x24,32x32,48x48}/
+      - mv /app/share/icons/hicolor/256x256/apps/scinotes.png
+          /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.scinotes.png
+      - mv /app/share/icons/hicolor/256x256/apps/xcos.png
+          /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.xcos.png
+      - mv /app/share/icons/hicolor/256x256/apps/scilab.png
+          /app/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
+      - mv /app/share/applications/scilab-adv-cli.desktop
+          /app/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
+      - mv /app/share/applications/scilab-cli.desktop
+          /app/share/applications/${FLATPAK_ID}.scilab-cli.desktop
+      - mv /app/share/applications/scinotes.desktop
+          /app/share/applications/${FLATPAK_ID}.scinotes.desktop
+      - mv /app/share/applications/xcos.desktop
+          /app/share/applications/${FLATPAK_ID}.xcos.desktop
+      - mv /app/share/applications/scilab.desktop
+          /app/share/applications/${FLATPAK_ID}.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID}
+          /app/share/applications/${FLATPAK_ID}.scilab-adv-cli.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID}
+          /app/share/applications/${FLATPAK_ID}.scilab-cli.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID}.scinotes
+          /app/share/applications/${FLATPAK_ID}.scinotes.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID}.xcos
+          /app/share/applications/${FLATPAK_ID}.xcos.desktop
+      - desktop-file-edit --set-icon=${FLATPAK_ID}
+          /app/share/applications/${FLATPAK_ID}.desktop
+    sources:
+      - type: archive
+        url: https://gitlab.com/scilab/scilab/-/archive/2026.0.1/scilab-2026.0.1.tar.bz2
+        sha256: 0ad1c4120635a20b30ee28d350a5a20182741577f06ab36bb0cf8ed343047fe8
       - type: patch
         path: Improve-AppStream-metadata.patch
+      - type: file
+        url: https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
+        sha256: ae475120e9fcd99b4b00b38329bd61cdc5eb754eee03fe66c01f50e137724f99
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/antlr/antlr4-runtime/4.13.1/antlr4-runtime-4.13.1.jar
+        sha256: 54665d2838cc66458343468efc539e454fc95b46a8a04b13c6ac43fc9be63505
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/asm/asm/3.3.1/asm-3.3.1.jar
+        sha256: c2b39275f8e951bc74750080a1266cdabc39399bc5e13d642bf2d346449df7f3
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/avalon/avalon-framework/4.1.4/avalon-framework-4.1.4.jar
+        sha256: 93e557769f2130811b8d496a14493b052d9b52e8bc933b514dc0c00d6d3b460c
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/batik-all/1.17/batik-all-1.17.jar
+        sha256: 174b616d93ea4dab9a6d0c23c1ab5f146123c0ee2534087931607f9ee1253191
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/puppycrawl/tools/checkstyle/10.17.0/checkstyle-10.17.0.jar
+        sha256: b6e612bbeeeae63f864b2bb0f623a21beba902f6e3878b2924c1e373a725ba7a
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/net/sourceforge/cobertura/cobertura/2.1.1/cobertura-2.1.1.jar
+        sha256: e474a95bdede64fc612b0a1915b9cbb5aa1222bdcafe6bee56ec6b1e408b4fb2
+        dest: scilab/thirdparty/
+
+      - type: file
+        url: https://repo1.maven.org/maven2/commons-beanutils/commons-beanutils/1.9.4/commons-beanutils-1.9.4.jar
+        sha256: 7d938c81789028045c08c065e94be75fc280527620d5bd62b519d5838532368a
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/commons-codec/commons-codec/1.15/commons-codec-1.15.jar
+        sha256: b3e9f6d63a790109bf0d056611fbed1cf69055826defeb9894a71369d246ed63
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
+        sha256: eeeae917917144a68a741d4c0dff66aa5c5c5fd85593ff217bced3fc8ca783b8
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar
+        sha256: 961b2f6d87dbacc5d54abf45ab7a6e2495f89b75598962d8c723cea9bc210908
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar
+        sha256: ce6f913cad1f0db3aad70186d65c5bc7ffcc9a99e3fe8e0b137312819f7c362f
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/eclipse/jdt/ecj/3.37.0/ecj-3.37.0.jar
+        sha256: cde026ff966b48b5e5f148b6f041ceff3cf4f85cf75155f4ec0f40e4ee14b545
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/formdev/flatlaf/3.4.1/flatlaf-3.4.1.jar
+        sha256: 8b4bbd34727f80e74555b2be3d8dcb994434654986c64f4298162247a9d35ffc
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/pdfbox/fontbox/2.0.27/fontbox-2.0.27.jar
+        sha256: dc7429868aaf3d313c524b9aab846a405e89ca4927f35762ca4d1a60bce1d7f4
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/fop/2.9/fop-2.9.jar
+        sha256: 5bb475ee278cc3adc1c1b322febeae781dad20f5da4ab391723b3980f3903d46
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/fop-core/2.9/fop-core-2.9.jar
+        sha256: 1baa3ff38b966cbfbb1577045cdb0c39da2ef39ef337f482642f89c32e84ed0c
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/fop-events/2.9/fop-events-2.9.jar
+        sha256: e1d741336a7aab7cfd7f0613c703dec0e931cb1fe0b77380a9748cf445f5ceb6
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/fop-util/2.9/fop-util-2.9.jar
+        sha256: 7c9cf03e1e3c2af4794312256070829e13f2451bb64c972993c60597993d043f
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/freehep/freehep-graphics2d/2.4/freehep-graphics2d-2.4.jar
+        sha256: 29e77eafec23aa272c9f2bce91fa0a831d9437f296f981dc6e960e066311f870
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/freehep/freehep-graphicsbase/2.4/freehep-graphicsbase-2.4.jar
+        sha256: d3054b9d5e1534ef3a8f189b0cae2d3c85ad51d2f15a6c61ce8a576c1c647713
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/freehep/freehep-graphicsio/2.4/freehep-graphicsio-2.4.jar
+        sha256: f5f884c795d4e4175dd05851125a668054627eb5d6facc9b343b31f14bef4a5c
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/freehep/freehep-graphicsio-emf/2.4/freehep-graphicsio-emf-2.4.jar
+        sha256: 6f29bd1b6ed1445cc407bbd98bb3530f89704f5877bf2ffd60117c7b1afd918e
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/freehep/freehep-io/2.2.2/freehep-io-2.2.2.jar
+        sha256: 4c19342a6e7def81f59fb1f13f34c6b25c49c9903404de913f6e06f1f7233911
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
+        sha256: 4241c14a7727c34feea6507ec801318a3d4a90f070e4525681079fb94ee4c593
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/google/guava/guava/33.2.0-jre/guava-33.2.0-jre.jar
+        sha256: 99f491e86262ce38d13b3581d40f77acdb4696a9505447c3154474c3192908dd
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/httpcomponents/client5/httpclient5/5.1.3/httpclient5-5.1.3.jar
+        sha256: 28c759254f4e35319e078bb6ffea75676608dc12cb243b24fb3c8732522977fe
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/httpcomponents/core5/httpcore5/5.1.3/httpcore5-5.1.3.jar
+        sha256: f2bf2f2c7772169c9e30699719667ad30f9b46c4e9d7841907deb2d12d9923fe
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/sun/istack/istack-commons-runtime/4.2.0/istack-commons-runtime-4.2.0.jar
+        sha256: 21025b7a096ef93f74de659c1be5990fa0c24e59a0f98a706e392e7088725ff6
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/2.0.1/jakarta.activation-2.0.1.jar
+        sha256: b9e24b7dd6e07495562ea96531be3130c96dba4d78e1dfd88adbbdebf4332871
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar
+        sha256: 01b176d718a169263e78290691fc479977186bcc6b333487325084d6586f4627
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar
+        sha256: 43fdef0b5b6ceb31b0424b208b930c74ab58fac2ceeb7b3f6fd3aeb8b5ca4393
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar
+        sha256: e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
+        sha256: 88b955a0df57880a26a74708bc34f74dcaf8ebf4e78843a28b50eae945732b06
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.1/jaxb-impl-2.3.1.jar
+        sha256: e6c9e0f1830fd5f7c30c25ecf5e2046c5668b06d304add89d2f027d5072297d0
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.3.1/jaxb-runtime-2.3.1.jar
+        sha256: 45fecfa5c8217ce1f3652ab95179790ec8cc0dec0384bca51cbeb94a293d9f2f
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/de/rototor/jeuclid/jeuclid-core/3.1.14/jeuclid-core-3.1.14.jar
+        sha256: c2ffd5efc45914c3b92c2b061daa63e17fd8260ee018634d4e541d1480b9e6f6
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/jgoodies/jgoodies-looks/2.7.0/jgoodies-looks-2.7.0.jar
+        sha256: d7dfb4d041c28eae836aa0910c91c1b95b29c28e833200d2ef6d311fa66b4c6d
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/javax/help/javahelp/2.0.05/javahelp-2.0.05.jar
+        sha256: fcf4922d38ff85184f1d2328317bb60826e14da948abd606ee3d5b8c6a70debd
+        dest: scilab/thirdparty/
+        dest-filename: jhall-2.0.jar
+      - type: file
+        url: https://raw.githubusercontent.com/jgraph/jgraphx/v2.1.0.7/lib/jgraphx.jar
+        sha256: cefc035e8c39edfb0ac1fb6ff89df7926cde003a520859b8565d3946a43ee8dc
+        dest: scilab/thirdparty/
+        dest-filename: jgraphx-2.1.0.7.jar
+      - type: file
+        url: https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath/1.0.7/jlatexmath-1.0.7.jar
+        sha256: 6d04c3843fc98d2eea9ba4cff0be7b80540ca75c5a4e0b3463fd1219c48cc65d
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath-font-cyrillic/1.0.7/jlatexmath-font-cyrillic-1.0.7.jar
+        sha256: 1a0150e4be64db88c250dff41f593349f55f0c9cfdb8e39433f15ba73ecd21b8
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath-font-greek/1.0.7/jlatexmath-font-greek-1.0.7.jar
+        sha256: cddc7e7e6f3e7ff0434c8a4805eadc3e9dc80457d582d19c3699e6aaee8f6af2
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/scilab/forge/jlatexmath-fop/1.0.7/jlatexmath-fop-1.0.7.jar
+        sha256: cd3302fd0d7f17d44b82555f87689846e0bb70814f0639aae3b976dfac145496
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar
+        sha256: 36a747ca1e0b86f6ea88055b8723bb87030d627766da6288bf077afdeeb0f75a
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/lucene/lucene-analysis-common/9.10.0/lucene-analysis-common-9.10.0.jar
+        sha256: bce8613f0de93d86e5b7567eba551be4af8073739b0bd9a9bd7a4225cfdc424d
+        dest: scilab/thirdparty/
+        # configure.ac searches for lucene-analyzers-common*.jar (old Lucene 4-8 naming)
+        dest-filename: lucene-analyzers-common-9.10.0.jar
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/lucene/lucene-core/9.10.0/lucene-core-9.10.0.jar
+        sha256: afc1ad402b2584a7c1c7ce928d8bb46cbb800f5c66cee8aa86b7481ab17fb0b5
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/lucene/lucene-queryparser/9.10.0/lucene-queryparser-9.10.0.jar
+        sha256: e2f0e51599b6daf65c42b850ef1b39b617d794b6176ac81d3ff8597211cbec88
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/com/thoughtworks/qdox/qdox/1.12/qdox-1.12.jar
+        sha256: f9d7ad96f70d69e9c06c10e515b878f33810f1ad677cce9f6ae6772778d570ab
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.4/Saxon-HE-12.4.jar
+        sha256: 575f8b696e3b6f9aa7a3bf01611b8bf1b84576b55ce29bc16656a53a147ef441
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar
+        sha256: 18c4a0095d5c1da6b817592e767bb23d29dd2f560ad74df75ff3961dbde25b79
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/skinlf/skinlf/1.2.3/skinlf-1.2.3.jar
+        sha256: f29459434f90438e8f62f6c96c7e5c62f13ec375dcd282507d6154e2b9a580ba
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar
+        sha256: a840968176645684bb01aed376e067ab39614885f9eee44abe35a5f20ebe7fad
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/xml-apis/xml-apis-ext/1.3.04/xml-apis-ext-1.3.04.jar
+        sha256: d0b4887dc34d57de49074a58affad439a013d0baffa1a8034f8ef2a5ea191646
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/apache/xmlgraphics/xmlgraphics-commons/2.9/xmlgraphics-commons-2.9.jar
+        sha256: 2ebd333ab2a624514793c336e3af086608673286fe37ba1e639e0ac3e1b58be2
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/6.0.4/xmlresolver-6.0.4.jar
+        sha256: 0011e478a6ecaabaf4f8fa5637cddc5e772d7bfdc2cb4a6863209110ead9378c
+        dest: scilab/thirdparty/
+      - type: file
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-base/17.0.13/javafx-base-17.0.13-linux.jar
+        sha256: 11da93e4b66aa21703ddcd4a696d0fc45ccec3c39cf4fc9d95fee0da3c9b0749
+        dest: scilab/thirdparty/
+        dest-filename: javafx.base.jar
+      - type: file
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/17.0.13/javafx-graphics-17.0.13-linux.jar
+        sha256: 4a2a32f69962957e45a61a893fd9ab6970e586d51551a199a97e811085ade4f5
+        dest: scilab/thirdparty/
+        dest-filename: javafx.graphics.jar
+      - type: file
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-swing/17.0.13/javafx-swing-17.0.13-linux.jar
+        sha256: 333e426275e176ccd19d6966e5ab05c5e5a124d7f42fd4293203dc31671886ff
+        dest: scilab/thirdparty/
+        dest-filename: javafx.swing.jar
+      # Java Chromium Embedded Frameworkfrom jcefmaven
+      - type: file
+        url: https://github.com/jcefmaven/jcefmaven/releases/download/135.0.20/jcef-api-jcef-ca49ada%2Bcef-135.0.20%2Bge7de5c3%2Bchromium-135.0.7049.85.jar
+        sha256: 4c103b99cb5b95c0e7c4a3cea7e0bc75ab8ed955f620c101f343e30cd85a342a
+        dest: scilab/thirdparty/
+        dest-filename: jcef-ca49ada5c7e3.jar
+      - type: file
+        url: https://github.com/jcefmaven/jcefmaven/releases/download/135.0.20/jcef-natives-linux-amd64-jcef-ca49ada%2Bcef-135.0.20%2Bge7de5c3%2Bchromium-135.0.7049.85.jar
+        sha256: 25248d6063e470ddbb83bb59634d47d6fc8025c75abc921c2525ccb50abdeb2d
+        dest-filename: jcef-natives-linux-amd64.jar
+      - type: file
+        url: https://jogamp.org/deployment/v2.5.0/jar/jogl-all.jar
+        sha256: 245717cceabca264a210a899f8839d47bd127f50f80892ead2277dd89cbcd301
+        dest: scilab/thirdparty/
+        dest-filename: jogl-all.jar
+      - type: file
+        url: https://jogamp.org/deployment/v2.5.0/jar/gluegen-rt.jar
+        sha256: 3620c18536a8671fcb1c595d7448e9d31226b824117af6a4c6d45c657f4dabe3
+        dest: scilab/thirdparty/
+        dest-filename: gluegen-rt.jar
+      - type: file
+        url: https://jogamp.org/deployment/v2.5.0/jar/jogl-all-natives-linux-amd64.jar
+        sha256: e97850f290d8e44ba07fa0500d7a071ff444209099f0372df3dba707cba3ddc1
+        dest-filename: jogl-natives.jar
+      - type: file
+        url: https://jogamp.org/deployment/v2.5.0/jar/gluegen-rt-natives-linux-amd64.jar
+        sha256: 6d998d0c1f04f103894b769049086124505063cea86a82896194bb53c88b040a
+        dest-filename: gluegen-rt-natives.jar
+      - type: archive
+        url: https://core.tcl-lang.org/bwidget/tarball/BWidget-1.9.16.tar.gz?name=BWidget-1.9.16
+        sha256: 3513d53ad615e7f1906d939e3939f4ace6ee3d0aa2b97fdf7f6bf9b511dff401
+        strip-components: 1
+        dest: bwidget-src
