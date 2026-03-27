@@ -63,11 +63,11 @@ modules:
   - name: openblas
     buildsystem: cmake-ninja
     config-opts:
-      - -DCMAKE_BUILD_TYPE=Release
       - -DBUILD_SHARED_LIBS=ON
       - -DBUILD_WITHOUT_CBLAS=OFF
       - -DBUILD_WITHOUT_LAPACK=OFF
-      - -DNUM_THREADS=64
+      - -DDYNAMIC_ARCH=ON
+      - -DUSE_OPENMP=ON
     sources:
       - type: archive
         url: https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.28/OpenBLAS-0.3.28.tar.gz
@@ -76,7 +76,6 @@ modules:
   - name: arpack-ng
     buildsystem: cmake-ninja
     config-opts:
-      - -DCMAKE_BUILD_TYPE=Release
       - -DBLA_VENDOR=OpenBLAS
       - -DBUILD_SHARED_LIBS=ON
       - -DEXAMPLES=OFF
