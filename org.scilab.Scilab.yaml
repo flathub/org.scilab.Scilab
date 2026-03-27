@@ -180,7 +180,7 @@ modules:
   - name: openxlsx
     buildsystem: simple
     build-commands:
-      - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+      - cmake -S . -B build -DBUILD_SHARED_LIBS=OFF
           -DCMAKE_CXX_FLAGS="-include cstdint" -G Ninja
       - cmake --build build --target OpenXLSX
       - mkdir -p /app/include/OpenXLSX
