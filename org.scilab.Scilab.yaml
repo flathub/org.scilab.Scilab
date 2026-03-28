@@ -196,7 +196,6 @@ modules:
   - name: suitesparse
     buildsystem: cmake-ninja
     config-opts:
-      - -DCMAKE_BUILD_TYPE=Release
       - -DSUITESPARSE_ENABLE_PROJECTS=suitesparse_config;amd;btf;colamd;klu
       - -DBUILD_SHARED_LIBS=ON
       - -DBUILD_TESTING=OFF
@@ -248,7 +247,9 @@ modules:
       # Java 17 dropped support for source/target <7; patch 1.5 → 8
       - sed -i 's/source="1\.5" target="1\.5"/source="8" target="8"/g' build.xml
       - ant jar
-      - install -Dm644 build/flexdock-1.2.5.jar /app/share/java/flexdock-1.2.5.jar
+      - mkdir -p /app/share/java
+      # flexdock-[0-9]*.jar matches the main JAR but not flexdock-demo-*.jar
+      - cp build/flexdock-[0-9]*.jar /app/share/java/
     sources:
       - type: archive
         url: https://gitlab.com/scilab/forge/flexdock/-/archive/1.2.5/flexdock-1.2.5.tar.gz
@@ -265,13 +266,14 @@ modules:
       - mkdir -p build/api
       - javac -source 8 -target 8 -d build/api
           $(find modules/jrosetta-api/src/main/java -name "*.java")
-      - jar cf jrosetta-api-1.0.4.jar -C build/api .
+      - jar cf jrosetta-api.jar -C build/api .
       - mkdir -p build/engine
       - javac -source 8 -target 8 -cp build/api -d build/engine
           $(find modules/jrosetta-engine/src/main/java -name "*.java")
-      - jar cf jrosetta-engine-1.0.4.jar -C build/engine .
-      - install -Dm644 jrosetta-api-1.0.4.jar /app/share/java/jrosetta-api-1.0.4.jar
-      - install -Dm644 jrosetta-engine-1.0.4.jar /app/share/java/jrosetta-engine-1.0.4.jar
+      - jar cf jrosetta-engine.jar -C build/engine .
+      - mkdir -p /app/share/java
+      - cp jrosetta-api.jar /app/share/java/
+      - cp jrosetta-engine.jar /app/share/java/
     sources:
       - type: archive
         url: http://deb.debian.org/debian/pool/main/libj/libjrosetta-java/libjrosetta-java_1.0.4.orig.tar.bz2
@@ -288,9 +290,8 @@ modules:
         LD_LIBRARY_PATH: /app/lib
     build-commands:
       - mkdir -p scilab/lib/thirdparty
-      - cp /app/share/java/flexdock-1.2.5.jar scilab/thirdparty/
-      - cp /app/share/java/jrosetta-api-1.0.4.jar scilab/thirdparty/
-      - cp /app/share/java/jrosetta-engine-1.0.4.jar scilab/thirdparty/
+      - cp /app/share/java/flexdock-*.jar scilab/thirdparty/
+      - cp /app/share/java/jrosetta-*.jar scilab/thirdparty/
       - unzip -j jogl-natives.jar 'natives/linux-amd64/*.so' -d scilab/lib/thirdparty/
       - unzip -j gluegen-rt-natives.jar 'natives/linux-amd64/*.so' -d scilab/lib/thirdparty/
       - mkdir -p jcef-native-extract
