@@ -30,6 +30,9 @@ cleanup:
 
 modules:
   - name: ncurses
+    build-options:
+      # ncurses 6.5 misdetects C++ bool when configured with C23 enabled.
+      cflags: -std=gnu17
     config-opts:
       - --with-shared
       - --with-normal
