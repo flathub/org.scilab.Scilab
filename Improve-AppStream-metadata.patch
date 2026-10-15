@@ -9,10 +9,13 @@ diff -ruN a/scilab/desktop/scilab.appdata.xml b/scilab/desktop/scilab.appdata.xm
      <name>Scilab</name>
      <metadata_license>CC0-1.0</metadata_license>
      <project_license>CECILL-2.1 or GPL-2.0+</project_license>
-@@ -42,6 +43,12 @@
+@@ -42,6 +43,15 @@
        </screenshot>
      </screenshots>
      <releases>
++      <release version="2027.0.0" date="2026-10-15">
++        <url>https://help.scilab.org/docs/2027.0.0/en_US/CHANGES.html</url>
++      </release>
 +      <release version="2026.0.1" date="2026-02-05">
 +        <url>https://help.scilab.org/docs/2026.0.1/en_US/CHANGES.html</url>
 +      </release>

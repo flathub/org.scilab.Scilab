@@ -219,10 +219,8 @@ def update_scilab_source_entry(text: str, new_version: str,
         print("  WARNING: could not find Scilab source URL in manifest.")
         return text
 
-    old_url = m.group(0).split("url: ", 1)[1] if "url: " in text[m.start()-6:m.end()] else m.group(0)
-    # Reconstruct properly
-    old_full_line = f"url: {m.group(1)}{m.group(2)}{m.group(3)}{m.group(2)}{m.group(4)}"
-    new_full_line = f"url: {m.group(1)}{new_version}{m.group(3)}{new_version}{m.group(4)}"
+    old_full_line = m.group(0)
+    new_full_line = f"{m.group(1)}{new_version}{m.group(3)}{new_version}{m.group(4)}"
 
     if old_full_line == new_full_line:
         print("  Scilab source URL already at correct version.")

@@ -1,15 +1,15 @@
 app-id: org.scilab.Scilab
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
-runtime-version: '24.08'
+runtime-version: '26.08'
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.openjdk17
+  - org.freedesktop.Sdk.Extension.openjdk21
 command: scilab
 build-options:
   no-debuginfo: true
   env:
-    JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
-    PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
+    JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/openjdk-21
+    PATH: /usr/lib/sdk/openjdk21/bin:/app/share/ant/bin:/usr/bin:/bin
 finish-args:
   - --env=MESA_GL_VERSION_OVERRIDE=2.1
   - --env=JAVA_HOME=/app/lib/jvm
@@ -63,6 +63,8 @@ modules:
   - name: openblas
     buildsystem: cmake-ninja
     config-opts:
+      # CMake 4 in SDK 26.08 removed compatibility with policies older than 3.5.
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
       - -DBUILD_SHARED_LIBS=ON
       - -DBUILD_WITHOUT_CBLAS=OFF
       - -DBUILD_WITHOUT_LAPACK=OFF
@@ -240,11 +242,11 @@ modules:
     buildsystem: simple
     build-options:
       env:
-        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+        JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/openjdk-21
         ANT_HOME: /app/share/ant
-        PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
+        PATH: /usr/lib/sdk/openjdk21/bin:/app/share/ant/bin:/usr/bin:/bin
     build-commands:
-      # Java 17 dropped support for source/target <7; patch 1.5 → 8
+      # Java 21 does not support source/target <8; patch 1.5 → 8
       - sed -i 's/source="1\.5" target="1\.5"/source="8" target="8"/g' build.xml
       - ant jar
       - mkdir -p /app/share/java
@@ -260,8 +262,8 @@ modules:
     buildsystem: simple
     build-options:
       env:
-        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
-        PATH: /usr/lib/sdk/openjdk17/bin:/usr/bin:/bin
+        JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/openjdk-21
+        PATH: /usr/lib/sdk/openjdk21/bin:/usr/bin:/bin
     build-commands:
       - mkdir -p build/api
       - javac -source 8 -target 8 -d build/api
@@ -284,9 +286,9 @@ modules:
     buildsystem: simple
     build-options:
       env:
-        JAVA_HOME: /usr/lib/sdk/openjdk17/jvm/openjdk-17
+        JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/openjdk-21
         ANT_HOME: /app/share/ant
-        PATH: /usr/lib/sdk/openjdk17/bin:/app/share/ant/bin:/usr/bin:/bin
+        PATH: /usr/lib/sdk/openjdk21/bin:/app/share/ant/bin:/usr/bin:/bin
         LD_LIBRARY_PATH: /app/lib
     build-commands:
       - mkdir -p scilab/lib/thirdparty
@@ -299,7 +301,7 @@ modules:
       - mkdir -p scilab/lib/thirdparty/jcef
       - tar -xzf jcef-native-extract/*.tar.gz -C scilab/lib/thirdparty/jcef/
       - mkdir -p /app/lib/jvm
-      - cp -a /usr/lib/sdk/openjdk17/jvm/openjdk-17/. /app/lib/jvm/
+      - cp -a /usr/lib/sdk/openjdk21/jvm/openjdk-21/. /app/lib/jvm/
       - |
         cd scilab
         LIBS="-ltinfo" ./configure \
@@ -356,8 +358,8 @@ modules:
           /app/share/applications/${FLATPAK_ID}.desktop
     sources:
       - type: archive
-        url: https://gitlab.com/scilab/scilab/-/archive/2026.0.1/scilab-2026.0.1.tar.bz2
-        sha256: 0ad1c4120635a20b30ee28d350a5a20182741577f06ab36bb0cf8ed343047fe8
+        url: https://gitlab.com/scilab/scilab/-/archive/2027.0.0/scilab-2027.0.0.tar.bz2
+        sha256: f6300791d6794fd24f6f826e5ca0454fe721527f68d44df161fed96eb598323e
       - type: patch
         path: Improve-AppStream-metadata.patch
       - type: file
@@ -590,29 +592,29 @@ modules:
         sha256: 0011e478a6ecaabaf4f8fa5637cddc5e772d7bfdc2cb4a6863209110ead9378c
         dest: scilab/thirdparty/
       - type: file
-        url: https://repo1.maven.org/maven2/org/openjfx/javafx-base/17.0.13/javafx-base-17.0.13-linux.jar
-        sha256: 11da93e4b66aa21703ddcd4a696d0fc45ccec3c39cf4fc9d95fee0da3c9b0749
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.11/javafx-base-21.0.11-linux.jar
+        sha256: 80fec582d54d09d4580af9430230e9b8e24eef385c967c3019cc207e08e05c34
         dest: scilab/thirdparty/
         dest-filename: javafx.base.jar
       - type: file
-        url: https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/17.0.13/javafx-graphics-17.0.13-linux.jar
-        sha256: 4a2a32f69962957e45a61a893fd9ab6970e586d51551a199a97e811085ade4f5
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/21.0.11/javafx-graphics-21.0.11-linux.jar
+        sha256: a8d10c8f587c5d1248f36050a3df0626b440f8295c5ca2e2820606af213ee7c4
         dest: scilab/thirdparty/
         dest-filename: javafx.graphics.jar
       - type: file
-        url: https://repo1.maven.org/maven2/org/openjfx/javafx-swing/17.0.13/javafx-swing-17.0.13-linux.jar
-        sha256: 333e426275e176ccd19d6966e5ab05c5e5a124d7f42fd4293203dc31671886ff
+        url: https://repo1.maven.org/maven2/org/openjfx/javafx-swing/21.0.11/javafx-swing-21.0.11-linux.jar
+        sha256: f41725b83db80df222374f65415ae8567c061eab94073d5fc0540fc00ad67494
         dest: scilab/thirdparty/
         dest-filename: javafx.swing.jar
       # Java Chromium Embedded Frameworkfrom jcefmaven
       - type: file
-        url: https://github.com/jcefmaven/jcefmaven/releases/download/135.0.20/jcef-api-jcef-ca49ada%2Bcef-135.0.20%2Bge7de5c3%2Bchromium-135.0.7049.85.jar
-        sha256: 4c103b99cb5b95c0e7c4a3cea7e0bc75ab8ed955f620c101f343e30cd85a342a
+        url: https://github.com/jcefmaven/jcefmaven/releases/download/146.0.10/jcef-api-jcef-d3de827%2Bcef-146.0.10%2Bg8219561%2Bchromium-146.0.7680.179.jar
+        sha256: b0271c8817cbdeb9e2e41420804d62e21c94acdf3b4d6072577fb19d546a4b08
         dest: scilab/thirdparty/
-        dest-filename: jcef-ca49ada5c7e3.jar
+        dest-filename: jcef-146.0.10.jar
       - type: file
-        url: https://github.com/jcefmaven/jcefmaven/releases/download/135.0.20/jcef-natives-linux-amd64-jcef-ca49ada%2Bcef-135.0.20%2Bge7de5c3%2Bchromium-135.0.7049.85.jar
-        sha256: 25248d6063e470ddbb83bb59634d47d6fc8025c75abc921c2525ccb50abdeb2d
+        url: https://github.com/jcefmaven/jcefmaven/releases/download/146.0.10/jcef-natives-linux-amd64-jcef-d3de827%2Bcef-146.0.10%2Bg8219561%2Bchromium-146.0.7680.179.jar
+        sha256: b089370c3bf8f853183ec822817e1b58348d90d1236bb6a26e921f513449dac2
         dest-filename: jcef-natives-linux-amd64.jar
       - type: file
         url: https://jogamp.org/deployment/v2.5.0/jar/jogl-all.jar
