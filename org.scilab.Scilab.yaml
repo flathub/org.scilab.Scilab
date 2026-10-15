@@ -72,6 +72,8 @@ modules:
       - -DBUILD_WITHOUT_CBLAS=OFF
       - -DBUILD_WITHOUT_LAPACK=OFF
       - -DDYNAMIC_ARCH=ON
+      # Use a portable baseline instead of autodetecting the build host's CPU.
+      - -DTARGET=CORE2
       - -DUSE_OPENMP=ON
     sources:
       - type: archive
