@@ -366,7 +366,7 @@ def main():
 
   JavaFX  — check if version changed in ivy.xml or configure.ac
     Pattern: https://repo1.maven.org/maven2/org/openjfx/javafx-{mod}/{ver}/javafx-{mod}-{ver}-linux.jar
-    dest-filename must stay as:  javafx.base.jar / javafx.graphics.jar / javafx.swing.jar
+    Keep javafx-base / javafx-graphics / javafx-swing prefixes for configure detection.
 
   JOGL / Gluegen  — from jogamp.org, not Maven Central
     Check:   https://jogamp.org/deployment/  for new releases

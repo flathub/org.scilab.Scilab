@@ -91,17 +91,6 @@ modules:
         url: https://github.com/opencollab/arpack-ng/archive/refs/tags/3.9.1.tar.gz
         sha256: f6641deb07fa69165b7815de9008af3ea47eb39b2bb97521fbf74c97aba6e844
 
-  - name: pcre2
-    config-opts:
-      - --enable-shared
-      - --enable-pcre2-32
-      - --enable-pcre2-16
-      - --enable-jit
-    sources:
-      - type: archive
-        url: https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.43/pcre2-10.43.tar.bz2
-        sha256: e2a53984ff0b07dfdb5ae4486bbb9b21cca8e7df2434096cc9bf1b728c350bcb
-
   - name: hdf5
     config-opts:
       - --enable-shared
@@ -151,16 +140,6 @@ modules:
         url: https://www.fftw.org/fftw-3.3.10.tar.gz
         sha256: 56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467
 
-  - name: libarchive
-    config-opts:
-      - --disable-bsdtar
-      - --disable-bsdcpio
-      - --disable-bsdcat
-    sources:
-      - type: archive
-        url: https://github.com/libarchive/libarchive/releases/download/v3.7.1/libarchive-3.7.1.tar.xz
-        sha256: b17403ce670ff18d8e06fea05a9ea9accf70678c88f1b9392a2e29b51127895f
-
   - name: eigen
     buildsystem: simple
     build-commands:
@@ -168,8 +147,8 @@ modules:
       - cp -r unsupported /app/include/
     sources:
       - type: archive
-        url: https://gitlab.com/libeigen/eigen/-/archive/3.3.2/eigen-3.3.2.tar.bz2
-        sha256: a530aa818520bb4e9f36e099696ca1a087e6d8e564f7e50abb544f5ac91d519f
+        url: https://gitlab.com/libeigen/eigen/-/archive/5.0.1/eigen-5.0.1.tar.bz2
+        sha256: e4de6b08f33fd8b8985d2f204381408c660bffa6170ac65b68ae1bd3cd575c0a
         strip-components: 1
 
   - name: rapidjson
@@ -181,24 +160,6 @@ modules:
         url: https://github.com/Tencent/rapidjson/archive/24b5e7a.tar.gz
         sha256: 2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8
         strip-components: 1
-
-  # Scilab links against libOpenXLSX.so; cmake shared-lib build not supported
-  # upstream, so we manually link the static archive into a shared library.
-  - name: openxlsx
-    buildsystem: simple
-    build-commands:
-      - cmake -S . -B build -DBUILD_SHARED_LIBS=OFF
-          -DCMAKE_CXX_FLAGS="-include cstdint" -G Ninja
-      - cmake --build build --target OpenXLSX
-      - mkdir -p /app/include/OpenXLSX
-      - cp -r OpenXLSX/headers/. /app/include/OpenXLSX/
-      - g++ -shared -o /app/lib/libOpenXLSX.so
-          -Wl,--whole-archive build/output/libOpenXLSX.a
-          -Wl,--no-whole-archive
-    sources:
-      - type: archive
-        url: https://github.com/troldal/OpenXLSX/archive/refs/tags/v0.3.2.tar.gz
-        sha256: e379f29a8ba4c4c33a2ef0589cf2fbc956411514748b2b7b45aaeff393e52cb3
 
   - name: suitesparse
     buildsystem: cmake-ninja
@@ -223,6 +184,9 @@ modules:
 
   - name: tk
     subdir: unix
+    build-options:
+      # Tk 8.6.15 modifies strings returned by strchr using pre-C23 semantics.
+      cflags: -std=gnu17
     config-opts:
       - --with-tcl=/app/lib
       - --enable-shared
@@ -287,6 +251,126 @@ modules:
         sha256: 57e214b3788520b0c9718e817a7277e732a90de25f78a7eb044595bb6b4b4fce
         strip-components: 1
 
+  - name: xlnt
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+      # xlnt uses these paths verbatim in its pkg-config file.
+      - -DCMAKE_INSTALL_LIBDIR=/app/lib
+      - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
+      - -DCMAKE_CXX_FLAGS=-include cstdint
+      - -DXLNT_CXX_LANG=17
+      - -DSTATIC=OFF
+      - -DTESTS=OFF
+      - -DSAMPLES=OFF
+    sources:
+      - type: archive
+        url: https://github.com/tfussell/xlnt/archive/refs/tags/v1.5.0.tar.gz
+        sha256: 8dec266d59ab6e4829da5dacea764a02887eeff5a5501c9a51ce796e735b90de
+
+  - name: xsimd
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DBUILD_TESTS=OFF
+    sources:
+      - type: archive
+        url: https://github.com/xtensor-stack/xsimd/archive/refs/tags/14.2.0.tar.gz
+        sha256: 21e841ab684b05331e81e7f782431753a029ef7b7d9d6d3ddab837e7782a40ee
+
+  - name: snappy
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DBUILD_SHARED_LIBS=ON
+      - -DSNAPPY_BUILD_TESTS=OFF
+      - -DSNAPPY_BUILD_BENCHMARKS=OFF
+    sources:
+      - type: archive
+        url: https://github.com/google/snappy/archive/refs/tags/1.2.2.tar.gz
+        sha256: 90f74bc1fbf78a6c56b3c4a082a05103b3a56bb17bca1a27e052ea11723292dc
+
+  - name: arrow
+    buildsystem: cmake-ninja
+    subdir: cpp
+    build-options:
+      # Keep memory use bounded when compiling Arrow on small build hosts.
+      env:
+        CMAKE_BUILD_PARALLEL_LEVEL: '2'
+        ARROW_BOOST_URL: file:///run/build/arrow/boost-1.88.0-cmake.tar.gz
+        ARROW_THRIFT_URL: file:///run/build/arrow/thrift-0.22.0.tar.gz
+      make-args:
+        - -j2
+    config-opts:
+      - -DARROW_DEPENDENCY_SOURCE=SYSTEM
+      - -DBoost_SOURCE=BUNDLED
+      - -DThrift_SOURCE=BUNDLED
+      - -DARROW_BUILD_SHARED=ON
+      - -DARROW_BUILD_STATIC=OFF
+      - -DARROW_BUILD_TESTS=OFF
+      - -DARROW_BUILD_EXAMPLES=OFF
+      - -DARROW_PARQUET=ON
+      - -DARROW_IPC=ON
+      - -DARROW_MIMALLOC=OFF
+      - -DARROW_JEMALLOC=OFF
+      - -DARROW_WITH_SNAPPY=ON
+      - -DARROW_WITH_ZLIB=ON
+      - -DARROW_WITH_ZSTD=ON
+      - -DARROW_SIMD_LEVEL=NONE
+      - -DARROW_RUNTIME_SIMD_LEVEL=MAX
+    sources:
+      - type: archive
+        url: https://github.com/apache/arrow/releases/download/apache-arrow-21.0.0/apache-arrow-21.0.0.tar.gz
+        sha256: 5d3f8db7e72fb9f65f4785b7a1634522e8d8e9657a445af53d4a34a3849857b5
+      - type: file
+        url: https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.gz
+        sha256: dcea50f40ba1ecfc448fdf886c0165cf3e525fef2c9e3e080b9804e8117b9694
+      - type: file
+        url: https://archive.apache.org/dist/thrift/0.22.0/thrift-0.22.0.tar.gz
+        sha256: 794a0e455787960d9f27ab92c38e34da27e8deeda7a5db0e59dc64a00df8a1e5
+
+  - name: cppserver
+    buildsystem: simple
+    build-commands:
+      # Build the library dependencies without upstream's examples and tests.
+      - printf '%s\n' 'include("asio.cmake")' 'include("CppCommon.cmake")' > modules/CMakeLists.txt
+      - printf '%s\n' 'include("fmt.cmake")' > modules/CppCommon/modules/CMakeLists.txt
+      - cp -r cmake modules/CppCommon/cmake
+      # Recent binutils headers use native C++ bool instead of bfd_boolean.
+      - sed -i -e 's/\<bfd_boolean\>/bool/g' -e 's/\<FALSE\>/false/g'
+          -e 's/\<TRUE\>/true/g' modules/CppCommon/source/system/stack_trace.cpp
+      - cmake -S . -B build -G Ninja -DCPPSERVER_MODULE=ON -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-include cstdint"
+      - cmake --build build -j2
+      - install -Dm755 build/libcppserver.so /app/lib/libcppserver.so
+      - install -Dm755 build/modules/libasio.so /app/lib/libasio.so
+      - install -Dm755 build/modules/CppCommon/libcppcommon.so /app/lib/libcppcommon.so
+      - install -Dm755 build/modules/CppCommon/modules/libfmt.so /app/lib/libfmt.so
+      - mkdir -p /app/include/cppserver /app/include/cppcommon /app/include/asio /app/include/fmt
+      - cp -r include/. /app/include/cppserver/
+      - cp -r modules/CppCommon/include/. /app/include/cppcommon/
+      - cp -r modules/asio/include/. /app/include/asio/
+      - cp -r modules/CppCommon/modules/fmt/include/. /app/include/fmt/
+    sources:
+      - type: archive
+        url: https://github.com/chronoxor/CppServer/archive/refs/tags/1.0.6.0.tar.gz
+        sha256: a804880a7c97194a8de9e97ff5ccf638a60b51ad06ca761f8b99a7c724519aab
+      - type: archive
+        url: https://github.com/chronoxor/CppCommon/archive/refs/tags/1.0.6.0.tar.gz
+        sha256: f5d4fe015e2dddac36f4c96a4594eb88ac01df0de294c4437492dd3a447c7b9e
+        dest: modules/CppCommon
+      - type: archive
+        url: https://github.com/chronoxor/CppCMakeScripts/archive/24ed6954308bf6614f7e0c87134d2f1695e02b75.tar.gz
+        sha256: 49d32d53c8e7076b48a7b434a08021c00064813350388c36bebabb495b2fd91a
+        dest: cmake
+      - type: archive
+        url: https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-36-0.tar.gz
+        sha256: 0310a76b27e1854f09f696b30de57dc490b5e1b17faed1eb8c9a2891f956e52b
+        dest: modules/asio
+        strip-components: 2
+      - type: archive
+        url: https://github.com/fmtlib/fmt/archive/refs/tags/11.2.0.tar.gz
+        sha256: bc23066d87ab3168f27cef3e97d545fa63314f5c79df5ea444d41d56f962c6af
+        dest: modules/CppCommon/modules/fmt
+
   - name: Scilab
     buildsystem: simple
     build-options:
@@ -316,11 +400,17 @@ modules:
           --without-modelica \
           --without-umfpack \
           --with-eigen-include=/app/include \
+          --with-cppserver=/app/include \
           --with-tcl-include=/app/include \
           --with-tcl-library=/app/lib \
           --with-tk-include=/app/include \
           --with-tk-library=/app/lib
+      # ccache requires the temporary build home used by macro generation to be absolute.
+      - mkdir -p scilab/.flatpak-build-home
+      - realpath scilab/.flatpak-build-home > scilab/.scilab-build-home-path
       - make -C scilab -j$(nproc)
+      # The upstream macros target ignores failures; require its output before installing.
+      - test -f scilab/modules/core/macros/lib
       - make -C scilab install
       - mkdir -p /app/share/scilab/thirdparty
       - cp -r scilab/thirdparty/. /app/share/scilab/thirdparty/
@@ -600,17 +690,14 @@ modules:
         url: https://repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.11/javafx-base-21.0.11-linux.jar
         sha256: 80fec582d54d09d4580af9430230e9b8e24eef385c967c3019cc207e08e05c34
         dest: scilab/thirdparty/
-        dest-filename: javafx.base.jar
       - type: file
         url: https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/21.0.11/javafx-graphics-21.0.11-linux.jar
         sha256: a8d10c8f587c5d1248f36050a3df0626b440f8295c5ca2e2820606af213ee7c4
         dest: scilab/thirdparty/
-        dest-filename: javafx.graphics.jar
       - type: file
         url: https://repo1.maven.org/maven2/org/openjfx/javafx-swing/21.0.11/javafx-swing-21.0.11-linux.jar
         sha256: f41725b83db80df222374f65415ae8567c061eab94073d5fc0540fc00ad67494
         dest: scilab/thirdparty/
-        dest-filename: javafx.swing.jar
       # Java Chromium Embedded Frameworkfrom jcefmaven
       - type: file
         url: https://github.com/jcefmaven/jcefmaven/releases/download/146.0.10/jcef-api-jcef-d3de827%2Bcef-146.0.10%2Bg8219561%2Bchromium-146.0.7680.179.jar
