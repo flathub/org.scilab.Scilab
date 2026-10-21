@@ -371,6 +371,26 @@ modules:
         sha256: bc23066d87ab3168f27cef3e97d545fa63314f5c79df5ea444d41d56f962c6af
         dest: modules/CppCommon/modules/fmt
 
+  - name: scinotes-web-assets
+    buildsystem: simple
+    build-commands:
+      # SciNotes loads Monaco's AMD runtime and MathJax from SCI/thirdparty/web.
+      - mkdir -p /app/share/scilab/thirdparty/web/monaco-editor
+      - cp -r monaco-editor/min/vs /app/share/scilab/thirdparty/web/monaco-editor/
+      - mkdir -p /app/share/scilab/thirdparty/web/mathjax
+      - cp -r mathjax/es5/. /app/share/scilab/thirdparty/web/mathjax/
+      - install -Dm644 monaco-editor/LICENSE /app/share/licenses/monaco-editor/LICENSE
+      - install -Dm644 mathjax/LICENSE /app/share/licenses/mathjax/LICENSE
+    sources:
+      - type: archive
+        url: https://registry.npmjs.org/monaco-editor/-/monaco-editor-0.52.2.tgz
+        sha256: c280cdcf0b0c13d1a2bf01af958d4387ed06d7f6c918401d00c4adcae1bc72b6
+        dest: monaco-editor
+      - type: archive
+        url: https://registry.npmjs.org/mathjax/-/mathjax-3.2.2.tgz
+        sha256: 1b9c0a1c44df864e915690558e72adb9cc5203360daefd385084ced3b6c64c09
+        dest: mathjax
+
   - name: Scilab
     buildsystem: simple
     build-options:
@@ -414,6 +434,9 @@ modules:
       - make -C scilab install
       - mkdir -p /app/share/scilab/thirdparty
       - cp -r scilab/thirdparty/. /app/share/scilab/thirdparty/
+      - test -s /app/share/scilab/thirdparty/web/monaco-editor/vs/loader.js
+      - test -s /app/share/scilab/thirdparty/web/monaco-editor/vs/editor/editor.main.js
+      - test -s /app/share/scilab/thirdparty/web/mathjax/tex-mml-svg.js
       - mkdir -p /app/lib/thirdparty
       - cp -r scilab/lib/thirdparty/. /app/lib/thirdparty/
       - mkdir -p /app/share/scilab/modules/tclsci
