@@ -329,6 +329,10 @@ modules:
 
   - name: cppserver
     buildsystem: simple
+    build-options:
+      # Preserve SDK hardening flags: _FORTIFY_SOURCE changes Asio endpoint layout.
+      # CppServer, Asio and Scilab must use the same flags to remain ABI-compatible.
+      cxxflags: -include cstdint
     build-commands:
       # Build the library dependencies without upstream's examples and tests.
       - printf '%s\n' 'include("asio.cmake")' 'include("CppCommon.cmake")' > modules/CMakeLists.txt
@@ -338,8 +342,17 @@ modules:
       - sed -i -e 's/\<bfd_boolean\>/bool/g' -e 's/\<FALSE\>/false/g'
           -e 's/\<TRUE\>/true/g' modules/CppCommon/source/system/stack_trace.cpp
       - cmake -S . -B build -G Ninja -DCPPSERVER_MODULE=ON -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-include cstdint"
+          -DCMAKE_BUILD_TYPE=Release
       - cmake --build build -j2
+      # Check the C++17 ABI used by Scilab against the compiled libraries.
+      - c++ $CXXFLAGS -std=c++17 check-cppserver-abi.cpp
+          -Iinclude -Imodules/CppCommon/include -Imodules/asio/include
+          -Imodules/CppCommon/modules/fmt/include
+          -Lbuild -Lbuild/modules -Lbuild/modules/CppCommon -Lbuild/modules/CppCommon/modules
+          -lcppserver -lcppcommon -lasio -lfmt -lssl -lcrypto -pthread
+          -o build/check-cppserver-abi
+      - LD_LIBRARY_PATH="$PWD/build:$PWD/build/modules:$PWD/build/modules/CppCommon:$PWD/build/modules/CppCommon/modules"
+          ./build/check-cppserver-abi
       - install -Dm755 build/libcppserver.so /app/lib/libcppserver.so
       - install -Dm755 build/modules/libasio.so /app/lib/libasio.so
       - install -Dm755 build/modules/CppCommon/libcppcommon.so /app/lib/libcppcommon.so
@@ -370,18 +383,27 @@ modules:
         url: https://github.com/fmtlib/fmt/archive/refs/tags/11.2.0.tar.gz
         sha256: bc23066d87ab3168f27cef3e97d545fa63314f5c79df5ea444d41d56f962c6af
         dest: modules/CppCommon/modules/fmt
+      - type: file
+        path: check-cppserver-abi.cpp
 
-  - name: scinotes-web-assets
+  - name: web-assets
     buildsystem: simple
     build-commands:
-      # SciNotes loads Monaco's AMD runtime and MathJax from SCI/thirdparty/web.
+      # The console and SciNotes load these runtimes from SCI/thirdparty/web.
+      - mkdir -p /app/share/scilab/thirdparty/web/jquery
+      - cp jquery/dist/jquery.min.js /app/share/scilab/thirdparty/web/jquery/
       - mkdir -p /app/share/scilab/thirdparty/web/monaco-editor
       - cp -r monaco-editor/min/vs /app/share/scilab/thirdparty/web/monaco-editor/
       - mkdir -p /app/share/scilab/thirdparty/web/mathjax
       - cp -r mathjax/es5/. /app/share/scilab/thirdparty/web/mathjax/
       - install -Dm644 monaco-editor/LICENSE /app/share/licenses/monaco-editor/LICENSE
       - install -Dm644 mathjax/LICENSE /app/share/licenses/mathjax/LICENSE
+      - install -Dm644 jquery/LICENSE.txt /app/share/licenses/jquery/LICENSE.txt
     sources:
+      - type: archive
+        url: https://registry.npmjs.org/jquery/-/jquery-3.7.1.tgz
+        sha256: 68a9f787516da47c680e09c187bcbac4536b6f85d90eb882844e12919e583f53
+        dest: jquery
       - type: archive
         url: https://registry.npmjs.org/monaco-editor/-/monaco-editor-0.52.2.tgz
         sha256: c280cdcf0b0c13d1a2bf01af958d4387ed06d7f6c918401d00c4adcae1bc72b6
@@ -434,6 +456,7 @@ modules:
       - make -C scilab install
       - mkdir -p /app/share/scilab/thirdparty
       - cp -r scilab/thirdparty/. /app/share/scilab/thirdparty/
+      - test -s /app/share/scilab/thirdparty/web/jquery/jquery.min.js
       - test -s /app/share/scilab/thirdparty/web/monaco-editor/vs/loader.js
       - test -s /app/share/scilab/thirdparty/web/monaco-editor/vs/editor/editor.main.js
       - test -s /app/share/scilab/thirdparty/web/mathjax/tex-mml-svg.js
@@ -480,6 +503,8 @@ modules:
         sha256: f6300791d6794fd24f6f826e5ca0454fe721527f68d44df161fed96eb598323e
       - type: patch
         path: Improve-AppStream-metadata.patch
+      - type: patch
+        path: Guard-optional-help-browser.patch
       - type: file
         url: https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
         sha256: ae475120e9fcd99b4b00b38329bd61cdc5eb754eee03fe66c01f50e137724f99
