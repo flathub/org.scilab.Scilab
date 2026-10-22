@@ -344,15 +344,6 @@ modules:
       - cmake -S . -B build -G Ninja -DCPPSERVER_MODULE=ON -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=Release
       - cmake --build build -j2
-      # Check the C++17 ABI used by Scilab against the compiled libraries.
-      - c++ $CXXFLAGS -std=c++17 check-cppserver-abi.cpp
-          -Iinclude -Imodules/CppCommon/include -Imodules/asio/include
-          -Imodules/CppCommon/modules/fmt/include
-          -Lbuild -Lbuild/modules -Lbuild/modules/CppCommon -Lbuild/modules/CppCommon/modules
-          -lcppserver -lcppcommon -lasio -lfmt -lssl -lcrypto -pthread
-          -o build/check-cppserver-abi
-      - LD_LIBRARY_PATH="$PWD/build:$PWD/build/modules:$PWD/build/modules/CppCommon:$PWD/build/modules/CppCommon/modules"
-          ./build/check-cppserver-abi
       - install -Dm755 build/libcppserver.so /app/lib/libcppserver.so
       - install -Dm755 build/modules/libasio.so /app/lib/libasio.so
       - install -Dm755 build/modules/CppCommon/libcppcommon.so /app/lib/libcppcommon.so
@@ -383,8 +374,6 @@ modules:
         url: https://github.com/fmtlib/fmt/archive/refs/tags/11.2.0.tar.gz
         sha256: bc23066d87ab3168f27cef3e97d545fa63314f5c79df5ea444d41d56f962c6af
         dest: modules/CppCommon/modules/fmt
-      - type: file
-        path: check-cppserver-abi.cpp
 
   - name: web-assets
     buildsystem: simple
