@@ -1,0 +1,75 @@
+--- a/scilab/modules/commons/src/java/org/scilab/modules/commons/utils/WebBrowser.java
++++ b/scilab/modules/commons/src/java/org/scilab/modules/commons/utils/WebBrowser.java
+@@ -116,13 +116,22 @@
+                 if (webprefs.defaultBrowser) {
+                     // Under Windows, ShellExecute is called with the URI and under Linux it is gnome_url_show.
+                     // So to handle different protocol in URI, user must config its OS to handle them.
+-                    Desktop.getDesktop().browse(new URI(url));
++                    browse(new URI(url));
+                 } else {
+                     new ProcessBuilder((webprefs.cmdBrowser + " " + new URI(url).toString()).trim().split("\\s+")).start();
+                 }
+             }
+         } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, ERROR_MSG + url);
++        }
++    }
++
++    /** Open external links through the desktop portal when running in Flatpak. */
++    public static void browse(URI uri) throws java.io.IOException {
++        if (new java.io.File("/.flatpak-info").isFile()) {
++            new ProcessBuilder("/usr/bin/xdg-open", uri.toString()).start();
++        } else {
++            Desktop.getDesktop().browse(uri);
+         }
+     }
+ 
+--- a/scilab/modules/gui/src/java/org/scilab/modules/gui/bridge/browser/SwingScilabBrowser.java
++++ b/scilab/modules/gui/src/java/org/scilab/modules/gui/bridge/browser/SwingScilabBrowser.java
+@@ -32,7 +32,7 @@
+ import com.google.gson.Gson;
+ 
+ import java.awt.BorderLayout;
+-import java.awt.Desktop;
++import org.scilab.modules.commons.utils.WebBrowser;
+ import java.awt.event.KeyEvent;
+ import java.io.IOException;
+ import java.net.URI;
+@@ -113,7 +113,7 @@
+                 // Open external links in the user's default system browser
+                 if (browser == browser_ && target_url != null && !target_url.isEmpty()) {
+                     try {
+-                        Desktop.getDesktop().browse(new URI(target_url));
++                        WebBrowser.browse(new URI(target_url));
+                     } catch (Exception e) {
+                         // ignore
+                     }
+--- a/scilab/modules/gui/src/java/org/scilab/modules/gui/bridge/helpbrowser/SwingScilabHelpBrowser.java
++++ b/scilab/modules/gui/src/java/org/scilab/modules/gui/bridge/helpbrowser/SwingScilabHelpBrowser.java
+@@ -11,7 +11,7 @@
+ package org.scilab.modules.gui.bridge.helpbrowser;
+ 
+ import java.awt.BorderLayout;
+-import java.awt.Desktop;
++import org.scilab.modules.commons.utils.WebBrowser;
+ import java.io.File;
+ import java.io.IOException;
+ import java.net.URI;
+@@ -1388,7 +1388,7 @@
+             return;
+         }
+         try {
+-            Desktop.getDesktop().browse(URI.create(url));
++            WebBrowser.browse(URI.create(url));
+         } catch (IOException | IllegalArgumentException | UnsupportedOperationException e) {
+             // ignore
+         }
+@@ -1635,7 +1635,7 @@
+                 org.scilab.modules.action_binding.InterpreterManagement.putCommandInScilabQueue(command);
+             } else if ("remote".equals(linkType) && (path.startsWith("http://") || path.startsWith("https://"))) {
+                 try {
+-                    Desktop.getDesktop().browse(URI.create(path));
++                    WebBrowser.browse(URI.create(path));
+                 } catch (IOException e) {
+                     // ignore
+                 }

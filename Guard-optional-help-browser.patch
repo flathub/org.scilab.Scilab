@@ -1,0 +1,11 @@
+--- a/scilab/etc/scilab.start
++++ b/scilab/etc/scilab.start
+@@ -91,7 +91,7 @@
+ 
+ // Helpbrowser: ========================================================
+ // If the browser is open, restore the page left at last exit
+-if or(getscilabmode() == ["STD", "NW"]) then
++if with_module("helptools") & or(getscilabmode() == ["STD", "NW"]) then
+     helpbrowser_update("startup");
+     clear helpbrowser_update
+ end
