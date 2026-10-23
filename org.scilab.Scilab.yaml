@@ -378,7 +378,8 @@ modules:
   - name: web-assets
     buildsystem: simple
     build-commands:
-      # The console and SciNotes load these runtimes from SCI/thirdparty/web.
+      # The console, help browser and SciNotes load these from SCI/thirdparty/web.
+      - install -Dm644 highlightjs/highlight.min.js /app/share/scilab/thirdparty/web/highlightjs/highlight.min.js
       - mkdir -p /app/share/scilab/thirdparty/web/jquery
       - cp jquery/dist/jquery.min.js /app/share/scilab/thirdparty/web/jquery/
       - mkdir -p /app/share/scilab/thirdparty/web/monaco-editor
@@ -388,7 +389,12 @@ modules:
       - install -Dm644 monaco-editor/LICENSE /app/share/licenses/monaco-editor/LICENSE
       - install -Dm644 mathjax/LICENSE /app/share/licenses/mathjax/LICENSE
       - install -Dm644 jquery/LICENSE.txt /app/share/licenses/jquery/LICENSE.txt
+      - install -Dm644 highlightjs/LICENSE /app/share/licenses/highlightjs/LICENSE
     sources:
+      - type: archive
+        url: https://registry.npmjs.org/@highlightjs/cdn-assets/-/cdn-assets-11.11.1.tgz
+        sha256: 28a06bf6ebcc2218c6e842bdb4f1c8353508a8cada59e85110f91892f5726195
+        dest: highlightjs
       - type: archive
         url: https://registry.npmjs.org/jquery/-/jquery-3.7.1.tgz
         sha256: 68a9f787516da47c680e09c187bcbac4536b6f85d90eb882844e12919e583f53
@@ -426,7 +432,7 @@ modules:
         cd scilab
         LIBS="-ltinfo" ./configure \
           --prefix=/app \
-          --disable-build-help \
+          --enable-build-help \
           --disable-build-localization \
           --without-modelica \
           --without-umfpack \
@@ -440,8 +446,12 @@ modules:
       - mkdir -p scilab/.flatpak-build-home
       - realpath scilab/.flatpak-build-home > scilab/.scilab-build-home-path
       - make -C scilab -j$(nproc)
+      # The 2027 help browser renders installed XML and uses pre-generated images.
+      - python3 -c "import shutil; shutil.make_archive('scilab/modules/helptools/help_images', 'zip', 'scilab/modules/helptools/images')"
       # The upstream macros target ignores failures; require its output before installing.
       - test -f scilab/modules/core/macros/lib
+      - test -s scilab/modules/helptools/macros/lib
+      - test -s scilab/modules/helptools/macros/demotools/lib
       - make -C scilab install
       - mkdir -p /app/share/scilab/thirdparty
       - cp -r scilab/thirdparty/. /app/share/scilab/thirdparty/
@@ -494,6 +504,8 @@ modules:
         path: Improve-AppStream-metadata.patch
       - type: patch
         path: Guard-optional-help-browser.patch
+      - type: patch
+        path: Use-desktop-portal-for-web-links.patch
       - type: file
         url: https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
         sha256: ae475120e9fcd99b4b00b38329bd61cdc5eb754eee03fe66c01f50e137724f99
