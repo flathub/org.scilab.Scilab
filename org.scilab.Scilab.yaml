@@ -59,7 +59,7 @@ modules:
         sha256: 136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6
         x-checker-data:
           type: anitya
-          project-id: 2057
+          project-id: 373226
           stable-only: true
           url-template: https://invisible-island.net/archives/ncurses/ncurses-$version.tar.gz
 
